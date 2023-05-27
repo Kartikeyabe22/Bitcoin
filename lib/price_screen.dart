@@ -1,11 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart';
+import 'coin_data.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io'show Platform ;
+import 'dart:convert';
+
+const apiKey='834026A6-6F52-4ABE-ABEC-BB21112A7F0F';
 
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
 }
       String selectedCurrency = 'USD';
+
+
+
 class _PriceScreenState extends State<PriceScreen> {
+
+
+
+
+  DropdownButton<String> androidDropDown()
+  {
+    List<DropdownMenuItem<String>> dropdownItems = [];
+  for(String currency in currenciesList)
+  {
+    var newItem = DropdownMenuItem(
+      child: Text(currency),
+      value: currency,
+    );
+    dropdownItems.add(newItem);
+  }
+  return DropdownButton<String>(
+        value: selectedCurrency,
+        items: dropdownItems,
+        onChanged: (value){
+   setState(() {
+  selectedCurrency= value!;
+    });
+        });
+  }
+
+  CupertinoPicker iOSPicker()
+  {
+
+    List<Widget> str=[];
+  for(String i in currenciesList)
+  {
+    Widget newItem=Text(i);
+    str.add(newItem as Text);
+  }
+  return CupertinoPicker(
+      backgroundColor: Colors.lightBlue,
+      itemExtent: 32.0,
+      onSelectedItemChanged:(selectedIndex){
+        print(selectedIndex);
+      }, children:
+            str,
+      // Text('USD'),
+      // Text('EUR'),
+      // Text('GBP'),
+    );
+  }
+   getPicker()
+  {
+    if(Platform.isIOS)
+      {
+        return iOSPicker();
+      }
+    else if(Platform.isAndroid)
+      {
+        return androidDropDown();
+      }
+
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+   // void getData()
+   // async{
+   //   http.Response response= await http.get('https://rest.coinapi.io/v1/exchangerate/BTC/USD?apikey=834026A6-6F52-4ABE-ABEC-BB21112A7F0F' as Uri);
+   //  // print(response.statusCode);
+   //   if(response.statusCode==200)
+   //     {
+   //       String data=response.body;
+   //       print(data);
+   //     }
+   // }
+
+
+  void getData() async {
+    http.Response response =
+    await http.get(Uri.parse('https://rest.coinapi.io/v1/exchangerate/BTC/USD?apikey=$apiKey'));
+    if (response.statusCode == 200) {
+      String data = response.body;
+     // print(data);
+      var tim=jsonDecode(data)['time'];
+      print(tim);
+      var base=jsonDecode(data)['asset_id_base'];
+      print(base);
+      var source=jsonDecode(data)['asset_id_quote'];
+      print(source);
+      var price =jsonDecode(data)['rate'];
+      print(price);
+
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,23 +149,11 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: DropdownButton<String>(
-               value: selectedCurrency,
-                items: [
-                  DropdownMenuItem(child: Text('USD'), value:'USD',),
-                  DropdownMenuItem(child: Text('EUR'), value:'EUR',),
-                  DropdownMenuItem(child: Text('GBP'), value:'GBP',),
-                ],
-                onChanged: (value){
-
-                 setState(() {
-                   selectedCurrency= value!;
-                 });
-
-                }),
+            child:Platform.isIOS? iOSPicker():androidDropDown(),
           ),
         ],
       ),
     );
   }
 }
+//https://rest.coinapi.io/v1/exchangerate/BTC/USD?apikey=834026A6-6F52-4ABE-ABEC-BB21112A7F0F
