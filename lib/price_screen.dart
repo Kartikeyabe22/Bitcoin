@@ -18,6 +18,10 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
 
+String tim='';
+String base='';
+String source='';
+late double price;
 
 
 
@@ -94,19 +98,19 @@ class _PriceScreenState extends State<PriceScreen> {
    // }
 
 
-  void getData() async {
+  Future getData() async {
     http.Response response =
     await http.get(Uri.parse('https://rest.coinapi.io/v1/exchangerate/BTC/USD?apikey=$apiKey'));
     if (response.statusCode == 200) {
       String data = response.body;
      // print(data);
-      var tim=jsonDecode(data)['time'];
+      tim=jsonDecode(data)['time'];
       print(tim);
-      var base=jsonDecode(data)['asset_id_base'];
+      base=jsonDecode(data)['asset_id_base'];
       print(base);
-      var source=jsonDecode(data)['asset_id_quote'];
+      source=jsonDecode(data)['asset_id_quote'];
       print(source);
-      var price =jsonDecode(data)['rate'];
+      price =jsonDecode(data)['rate'];
       print(price);
 
     }
@@ -134,7 +138,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = ${price!}  USD',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
